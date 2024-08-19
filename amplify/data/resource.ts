@@ -9,7 +9,10 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
   Todo: a
     .model({
-      content: a.string(),
+      name: a.string(),
+      surname: a.string(),
+      role: a.string(),
+      hiringDate: a.date()
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });
