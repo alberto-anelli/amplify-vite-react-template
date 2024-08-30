@@ -4,6 +4,7 @@ import { generateClient } from "aws-amplify/data";
 
 import { Authenticator } from '@aws-amplify/ui-react'
 import { signInWithRedirect } from 'aws-amplify/auth';
+import { EmployeeCreateForm, EmployeeUpdateForm } from '../ui-components';
 
 import '@aws-amplify/ui-react/styles.css'
 
@@ -25,25 +26,25 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  function createEmployee() {
-    // Prompt the user for each field
-    const name = window.prompt("Enter the employee's name:");
-    const surname = window.prompt("Enter the employee's surname:");
-    const role = window.prompt("Enter the employee's role:");
-    const hiringDateVal = window.prompt("Enter the employee's hiring date (YYYY-MM-DD):");
+  // function createEmployee() {
+  //   // Prompt the user for each field
+  //   const name = window.prompt("Enter the employee's name:");
+  //   const surname = window.prompt("Enter the employee's surname:");
+  //   const role = window.prompt("Enter the employee's role:");
+  //   const hiringDateVal = window.prompt("Enter the employee's hiring date (YYYY-MM-DD):");
 
-    // Validate the input (you can add more validation logic here)
-    if (name && surname && role) {
-      client.models.Employee.create({
-        name,
-        surname,
-        role,
-        hiringDate: hiringDateVal
-      });
-    } else {
-      alert("All fields are required!");
-    }
-  }
+  //   // Validate the input (you can add more validation logic here)
+  //   if (name && surname && role) {
+  //     client.models.Employee.create({
+  //       name,
+  //       surname,
+  //       role,
+  //       hiringDate: hiringDateVal
+  //     });
+  //   } else {
+  //     alert("All fields are required!");
+  //   }
+  // }
 
     
   function deleteEmployee(id: string) {
@@ -57,11 +58,13 @@ function App() {
             <main>
               <h1>Hello {user?.username}</h1>
               <h1>Codeland Employees</h1>
-              <button onClick={createEmployee}>+ ADD</button>
+              <EmployeeCreateForm />
+
               <ul>
                 {employees.map((empl) => (
                   <li key={empl.id}>
                     <strong>{empl.name} {empl.surname}</strong> - ROLE: {empl.role}  - HIRING DATE: {empl.hiringDate}
+                    <br/>
                     <br/>
                     <button onClick={() => deleteEmployee(empl.id)}>- Delete</button>
                   </li>
