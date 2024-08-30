@@ -2,59 +2,79 @@ import { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
 
+import { Authenticator } from '@aws-amplify/ui-react'
+import { signInWithRedirect } from 'aws-amplify/auth';
+import { EmployeeCreateForm, EmployeeUpdateForm } from '../ui-components';
+
+import '@aws-amplify/ui-react/styles.css'
+
 const client = generateClient<Schema>();
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+
+  const [employees, setEmployees] = useState<Array<Schema["Employee"]["type"]>>([]);
 
   useEffect(() => {
+    signInWithRedirect({
+      provider: {custom: 'MicrosoftEntraIDSAML'}
+    });
     // Fetch existing todos when the component mounts
-    const subscription = client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
+    const subscription = client.models.Employee.observeQuery().subscribe({
+      next: (data) => setEmployees([...data.items]),
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  function createTodo() {
-    // Prompt the user for each field
-    const name = window.prompt("Enter the employee's name:");
-    const surname = window.prompt("Enter the employee's surname:");
-    const role = window.prompt("Enter the employee's role:");
-    const hiringDateVal = window.prompt("Enter the employee's hiring date (YYYY-MM-DD):");
+  // function createEmployee() {
+  //   // Prompt the user for each field
+  //   const name = window.prompt("Enter the employee's name:");
+  //   const surname = window.prompt("Enter the employee's surname:");
+  //   const role = window.prompt("Enter the employee's role:");
+  //   const hiringDateVal = window.prompt("Enter the employee's hiring date (YYYY-MM-DD):");
 
-    // Validate the input (you can add more validation logic here)
-    if (name && surname && role) {
-      client.models.Todo.create({
-        name,
-        surname,
-        role,
-        hiringDate: hiringDateVal
-      });
-    } else {
-      alert("All fields are required!");
-    }
-  }
+  //   // Validate the input (you can add more validation logic here)
+  //   if (name && surname && role) {
+  //     client.models.Employee.create({
+  //       name,
+  //       surname,
+  //       role,
+  //       hiringDate: hiringDateVal
+  //     });
+  //   } else {
+  //     alert("All fields are required!");
+  //   }
+  // }
 
     
-  function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+  function deleteEmployee(id: string) {
+    client.models.Employee.delete({ id })
   }
 
   return (
-    <main>
-      <h1>Codeland Employees</h1>
-      <button onClick={createTodo}>+ ADD</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>
-            <strong>{todo.name} {todo.surname}</strong> - ROLE: {todo.role}  - HIRING DATE: {todo.hiringDate}
-            <br/>
-            <button onClick={() => deleteTodo(todo.id)}>- Delete</button>
-          </li>
-        ))}
-      </ul>
-    </main>
+        
+    <Authenticator>
+      {({ signOut, user }) => (
+            <main>
+              <h1>Hello {user?.username}</h1>
+              <h1>Codeland Employees</h1>
+              <EmployeeCreateForm />
+
+              <ul>
+                {employees.map((empl) => (
+                  <li key={empl.id}>
+                    <strong>{empl.name} {empl.surname}</strong> - ROLE: {empl.role}  - HIRING DATE: {empl.hiringDate}
+                    <br/>
+                    <br/>
+                    <button onClick={() => deleteEmployee(empl.id)}>- Delete</button>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={signOut}>Sign out</button>
+            </main>
+                
+      )}
+      </Authenticator>
   );
 }
 
